@@ -3,15 +3,24 @@
 int previewWidth = 640;
 int previewHeight = 480;
 
+ofImage image;
+
 //--------------------------------------------------------------
 void ofApp::setup(){
 
 	kinect.open();
 	kinect.initDepthSource();
 	kinect.initColorSource();
+
+	kinect.initBodySource();
+
 	//kinect.initInfraredSource();
 
-	ofSetWindowShape(previewWidth * 2, previewHeight * 2);
+	camera.setDistance(10);
+
+	ofSetWindowShape(1920, 1080);
+	//ofSetWindowShape(previewWidth * 2, previewHeight * 2);
+
 
 }
 
@@ -19,14 +28,49 @@ void ofApp::setup(){
 void ofApp::update(){
 	
 	kinect.update();
+
+	mesh = kinect.getDepthSource()->getMesh(false,
+		ofxKinectForWindows2::Source::Depth::PointCloudOptions::TextureCoordinates::ColorCamera);
+
+	/*if (kinect.isFrameNew()) {
+
+		//auto depth = kinect.getDepthSource();
+
+		
+
+	}*/
+
+	
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
 	
-	kinect.getDepthSource()->draw(0, 0, previewWidth, previewHeight);
-	kinect.getColorSource()->draw(previewWidth, 0, previewWidth, previewHeight);
+	//kinect.getDepthSource()->draw(0, 0, previewWidth, previewHeight);
+	//kinect.getColorSource()->draw(previewWidth, 0, previewWidth, previewHeight);
 	//kinect.getInfraredSource()->draw(0, 0, previewWidth, previewHeight);
+
+	// SETTING THE BACKGROUND A MUTED BLUE
+	ofBackground(75, 95, 115);
+
+	// DRAW THE COLOR CAMERA TO MAKE SURE THE KINECT IS WORKING
+	//ofSetColor(255);
+	//kinect.getColorSource()->draw(0, 0, 320, 180);
+
+	// WE ARE NOW SWITCHING TO THE 3D VIEW
+	camera.begin();
+
+	ofPushStyle();
+	// FOR THIS MESH, I SCALED THE Z NEGATIVE TO MATCH DEPTH
+	// THIS IS DEVELOPER PREFERENCE, BUT IT'S HOW I CONCEIVE
+	// THE MESH...
+	ofScale(10, 10, -10);
+
+	mesh.draw();
+
+	ofPopStyle();
+
+	camera.end();
 }
 
 //--------------------------------------------------------------

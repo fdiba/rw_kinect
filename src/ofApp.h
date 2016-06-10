@@ -23,5 +23,9 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
 		ofxKFW2::Device kinect;
-		
+
+		ofEasyCam			camera;
+
+		ofMesh				mesh;
+
 };
