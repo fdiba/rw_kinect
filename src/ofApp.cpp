@@ -18,7 +18,8 @@ void ofApp::setup(){
 
 	camera.setDistance(10);
 
-	ofSetWindowShape(1920, 1080);
+	ofSetWindowShape(previewWidth, previewHeight);
+	//ofSetWindowShape(1920, 1080);
 	//ofSetWindowShape(previewWidth * 2, previewHeight * 2);
 
 
@@ -36,8 +37,6 @@ void ofApp::update(){
 
 		//auto depth = kinect.getDepthSource();
 
-		
-
 	}*/
 
 	
@@ -50,20 +49,16 @@ void ofApp::draw(){
 	//kinect.getColorSource()->draw(previewWidth, 0, previewWidth, previewHeight);
 	//kinect.getInfraredSource()->draw(0, 0, previewWidth, previewHeight);
 
-	// SETTING THE BACKGROUND A MUTED BLUE
-	ofBackground(75, 95, 115);
+	ofBackground(0);
 
-	// DRAW THE COLOR CAMERA TO MAKE SURE THE KINECT IS WORKING
 	//ofSetColor(255);
 	//kinect.getColorSource()->draw(0, 0, 320, 180);
 
-	// WE ARE NOW SWITCHING TO THE 3D VIEW
+	//3D view
 	camera.begin();
 
 	ofPushStyle();
-	// FOR THIS MESH, I SCALED THE Z NEGATIVE TO MATCH DEPTH
-	// THIS IS DEVELOPER PREFERENCE, BUT IT'S HOW I CONCEIVE
-	// THE MESH...
+
 	ofScale(10, 10, -10);
 
 	mesh.draw();
@@ -95,6 +90,43 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
+
+	//printf("test");
+	//ofLog("test2 \n");
+	int id = 10000;
+	//auto v = mesh.getVertices();
+	vector<ofPoint> v = mesh.getVertices();
+
+	//ofFile newFile(ofToDataPath("temp.txt")); //file doesn't exist yet
+	//newFile.create(); // now file doesn't exist 
+
+	string str = ofToString(v[id][0]);
+	
+	
+	
+	for (int i = 1; i < 5; i++) {
+		str = str + ", " + ofToString(v[id][0]);
+
+	}
+
+	ofBuffer msg(str.c_str(), str.length());
+	ofBufferToFile("out.txt", msg);
+	
+	std::cout << 640 * 480 << " v size: " << v.size() << endl;
+
+	//mesh.removeTexCoord();
+
+	std::cout << 640 * 480 << " getVertex: " << mesh.getVertex(id) << endl;
+	
+	
+	std::cout << 640 * 480 << " getNumColors: " << mesh.getNumColors() << endl;
+	std::cout << 640 * 480 << " getNumIndices: " << mesh.getNumIndices() << endl;
+
+	std::cout << 640 * 480 << " getNumNormals: " << mesh.getNumNormals() << endl;
+
+	std::cout << 640 * 480 << " getNumTexCoords: " << mesh.getNumTexCoords() << endl; //307200 217088
+
+	std::cout << 640 * 480 << " getNumVertices: " << mesh.getNumVertices() << endl; //307200 217088
 
 }
 
