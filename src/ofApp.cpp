@@ -1,7 +1,7 @@
 #include "ofApp.h"
 
-int previewWidth = 640;
-int previewHeight = 480;
+int previewWidth = 1024;
+int previewHeight = 768;
 
 ofImage image;
 
@@ -9,9 +9,9 @@ ofImage image;
 void ofApp::setup(){
 
 	kinect.open();
+
 	kinect.initDepthSource();
 	kinect.initColorSource();
-
 	kinect.initBodySource();
 
 	//kinect.initInfraredSource();
@@ -22,6 +22,8 @@ void ofApp::setup(){
 	//ofSetWindowShape(1920, 1080);
 	//ofSetWindowShape(previewWidth * 2, previewHeight * 2);
 
+	//mesh.disableTextures();
+	//mesh.disableNormals();
 
 }
 
@@ -30,8 +32,11 @@ void ofApp::update(){
 	
 	kinect.update();
 
+	/*mesh = kinect.getDepthSource()->getMesh(false,
+		ofxKinectForWindows2::Source::Depth::PointCloudOptions::TextureCoordinates::ColorCamera);*/
+
 	mesh = kinect.getDepthSource()->getMesh(false,
-		ofxKinectForWindows2::Source::Depth::PointCloudOptions::TextureCoordinates::ColorCamera);
+		ofxKinectForWindows2::Source::Depth::PointCloudOptions::ColorCamera);
 
 	/*if (kinect.isFrameNew()) {
 
@@ -51,10 +56,14 @@ void ofApp::draw(){
 
 	ofBackground(0);
 
-	//ofSetColor(255);
+	ofSetColor(0);
+	ofDrawRectangle(0, 0, previewWidth, previewHeight);
 	//kinect.getColorSource()->draw(0, 0, 320, 180);
 
+	ofSetColor(255);
+
 	//3D view
+	
 	camera.begin();
 
 	ofPushStyle();
@@ -63,13 +72,31 @@ void ofApp::draw(){
 
 	mesh.draw();
 
+	drawJoints3D();
+
 	ofPopStyle();
 
 	camera.end();
-}
 
+	
+
+}
+void ofApp::drawJoints3D(){
+
+}
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+
+	if (key == 's') {
+		
+		//img.clear();
+
+		string str2 = "rw_kinect" + ofGetTimestampString() + ".jpg";
+
+		img.grabScreen(0, 0, ofGetWidth(), ofGetHeight());
+		
+		img.save(str2);
+	}
 
 }
 
@@ -91,10 +118,15 @@ void ofApp::mouseDragged(int x, int y, int button){
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
 
+	//mesh.save("mesh.ply");
+
 	//printf("test");
 	//ofLog("test2 \n");
 	int id = 10000;
 	//auto v = mesh.getVertices();
+
+	//mesh.clearTexCoords();
+
 	vector<ofPoint> v = mesh.getVertices();
 
 	//ofFile newFile(ofToDataPath("temp.txt")); //file doesn't exist yet
@@ -104,7 +136,7 @@ void ofApp::mousePressed(int x, int y, int button){
 	
 	
 	
-	for (int i = 1; i < 5; i++) {
+	for (int i = 1; i < 5; i++) { //TODO SAVE MESH TO VECTOR MESH
 		str = str + ", " + ofToString(v[id][0]);
 
 	}

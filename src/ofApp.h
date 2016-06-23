@@ -28,4 +28,8 @@ class ofApp : public ofBaseApp{
 
 		ofMesh				mesh;
 
+		void drawJoints3D();
+
+		ofImage     img;
+
 };
