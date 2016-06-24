@@ -22,6 +22,9 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
+		void exportMeshes();
+		void displayPoC();
+
 		ofxKFW2::Device kinect;
 
 		ofEasyCam			camera;
@@ -35,4 +38,10 @@ class ofApp : public ofBaseApp{
 		//vector<ofMesh*> meshPointers;
 		vector<ofMesh> meshes;
 
+		boolean recording;
+		boolean saving;
+
+		ofTrueTypeFont myfont;
+
+		int framesMax;
 };

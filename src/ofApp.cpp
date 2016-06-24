@@ -20,10 +20,13 @@ void ofApp::setup(){
 
 	ofSetWindowShape(previewWidth, previewHeight);
 	//ofSetWindowShape(1920, 1080);
-	//ofSetWindowShape(previewWidth * 2, previewHeight * 2);
 
 	//mesh.disableTextures();
 	//mesh.disableNormals();
+
+	myfont.loadFont("arial.ttf", 12);
+
+	framesMax = 10;
 
 }
 
@@ -38,6 +41,16 @@ void ofApp::update(){
 	mesh = kinect.getDepthSource()->getMesh(false,
 		ofxKinectForWindows2::Source::Depth::PointCloudOptions::ColorCamera);
 
+	if (kinect.isFrameNew() && recording) {
+
+		if(ofGetFrameNum() % 10 == 0){
+			std::cout << "meshes size : " << meshes.size() << endl;
+			if (meshes.size()<framesMax) meshes.push_back(mesh);
+			else if (meshes.size() >= framesMax)recording = false;
+		
+		}
+	}
+
 	/*if (kinect.isFrameNew()) {
 
 		//auto depth = kinect.getDepthSource();
@@ -49,21 +62,47 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+
+	ofBackground(0);
+
+	//ofSetColor(0);
+	//ofDrawRectangle(0, 0, previewWidth, previewHeight);
+
+
+	if (recording) {
+		ofSetColor(255, 0, 0);
+		myfont.drawString("recording", 10, 20);
+		displayPoC();
+	}
+	else if (saving) {
+
+		ofSetColor(255, 0, 0);
+		myfont.drawString("saving", 10, 20);
+		
+		std::cout << "meshes size : " << meshes.size() << endl;
+		exportMeshes();
+		saving = false;
+		meshes.clear();
+		std::cout << "meshes size : " << meshes.size() << endl;
+
+	}
+	else {
+		displayPoC();
+	}
 	
 	//kinect.getDepthSource()->draw(0, 0, previewWidth, previewHeight);
 	//kinect.getColorSource()->draw(previewWidth, 0, previewWidth, previewHeight);
 	//kinect.getInfraredSource()->draw(0, 0, previewWidth, previewHeight);
 
-	ofBackground(0);
-
-	ofSetColor(0);
-	ofDrawRectangle(0, 0, previewWidth, previewHeight);
 	//kinect.getColorSource()->draw(0, 0, 320, 180);
+
+}
+void ofApp::displayPoC() {
 
 	ofSetColor(255);
 
 	//3D view
-	
+
 	camera.begin();
 
 	ofPushStyle();
@@ -78,10 +117,19 @@ void ofApp::draw(){
 
 	camera.end();
 
-	
-
 }
 void ofApp::drawJoints3D(){
+
+}
+void ofApp::exportMeshes() {
+
+	for (int i = 0; i < meshes.size(); i++) {
+
+		string str3 = "mesh-" + ofGetTimestampString() + ".ply";
+		ofMesh m = meshes[i];
+		m.save(str3);
+
+	}
 
 }
 //--------------------------------------------------------------
@@ -95,28 +143,16 @@ void ofApp::keyPressed(int key) {
 
 		img.save(str2);
 	}
-	else if (key == 'a') {
+	else if (key == 'x') { //export meshes
+		saving = true;
+	} 
+	else if (key == 'r') {
 
-		for (int i = 0; i < meshes.size(); i++) {
+		recording = !recording;
 
+		//meshes.push_back(mesh);
 
-			string str3 = "mesh-" + ofGetTimestampString() + ".ply";
-
-			ofMesh m = meshes[i];
-			
-
-			//std::cout << "m : " << m << endl;
-
-			m.save(str3);
-
-		}
-
-
-	} else if (key == 'r') {
-
-		meshes.push_back(mesh);
-
-		std::cout << "meshPointers size : " << meshes.size() << endl;
+		//std::cout << "meshPointers size : " << meshes.size() << endl;
 
 	} else if (key == 'm') {
 
