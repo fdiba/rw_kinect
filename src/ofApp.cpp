@@ -85,17 +85,69 @@ void ofApp::drawJoints3D(){
 
 }
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key){
+void ofApp::keyPressed(int key) {
 
 	if (key == 's') {
-		
-		//img.clear();
 
 		string str2 = "rw_kinect" + ofGetTimestampString() + ".jpg";
 
 		img.grabScreen(0, 0, ofGetWidth(), ofGetHeight());
-		
+
 		img.save(str2);
+	}
+	else if (key == 'a') {
+
+		for (int i = 0; i < meshes.size(); i++) {
+
+
+			string str3 = "mesh-" + ofGetTimestampString() + ".ply";
+
+			ofMesh m = meshes[i];
+			
+
+			//std::cout << "m : " << m << endl;
+
+			m.save(str3);
+
+		}
+
+
+	} else if (key == 'r') {
+
+		meshes.push_back(mesh);
+
+		std::cout << "meshPointers size : " << meshes.size() << endl;
+
+	} else if (key == 'm') {
+
+		int id = 10000;
+		vector<ofPoint> v = mesh.getVertices();
+
+		string str = ofToString(v[id][0]);
+
+		for (int i = 1; i < 5; i++) { //TODO SAVE MESH TO VECTOR MESH
+			str = str + ", " + ofToString(v[id][0]);
+
+		}
+
+		ofBuffer msg(str.c_str(), str.length());
+		ofBufferToFile("out.txt", msg);
+
+		std::cout << 640 * 480 << " v size: " << v.size() << endl;
+
+		//mesh.removeTexCoord();
+
+		std::cout << 640 * 480 << " getVertex: " << mesh.getVertex(id) << endl;
+
+
+		std::cout << 640 * 480 << " getNumColors: " << mesh.getNumColors() << endl;
+		std::cout << 640 * 480 << " getNumIndices: " << mesh.getNumIndices() << endl;
+
+		std::cout << 640 * 480 << " getNumNormals: " << mesh.getNumNormals() << endl;
+
+		std::cout << 640 * 480 << " getNumTexCoords: " << mesh.getNumTexCoords() << endl; //307200 217088
+
+		std::cout << 640 * 480 << " getNumVertices: " << mesh.getNumVertices() << endl; //307200 217088
 	}
 
 }
@@ -122,43 +174,17 @@ void ofApp::mousePressed(int x, int y, int button){
 
 	//printf("test");
 	//ofLog("test2 \n");
-	int id = 10000;
+	
 	//auto v = mesh.getVertices();
 
 	//mesh.clearTexCoords();
 
-	vector<ofPoint> v = mesh.getVertices();
+	
 
 	//ofFile newFile(ofToDataPath("temp.txt")); //file doesn't exist yet
 	//newFile.create(); // now file doesn't exist 
 
-	string str = ofToString(v[id][0]);
 	
-	
-	
-	for (int i = 1; i < 5; i++) { //TODO SAVE MESH TO VECTOR MESH
-		str = str + ", " + ofToString(v[id][0]);
-
-	}
-
-	ofBuffer msg(str.c_str(), str.length());
-	ofBufferToFile("out.txt", msg);
-	
-	std::cout << 640 * 480 << " v size: " << v.size() << endl;
-
-	//mesh.removeTexCoord();
-
-	std::cout << 640 * 480 << " getVertex: " << mesh.getVertex(id) << endl;
-	
-	
-	std::cout << 640 * 480 << " getNumColors: " << mesh.getNumColors() << endl;
-	std::cout << 640 * 480 << " getNumIndices: " << mesh.getNumIndices() << endl;
-
-	std::cout << 640 * 480 << " getNumNormals: " << mesh.getNumNormals() << endl;
-
-	std::cout << 640 * 480 << " getNumTexCoords: " << mesh.getNumTexCoords() << endl; //307200 217088
-
-	std::cout << 640 * 480 << " getNumVertices: " << mesh.getNumVertices() << endl; //307200 217088
 
 }
 

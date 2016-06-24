@@ -32,4 +32,7 @@ class ofApp : public ofBaseApp{
 
 		ofImage     img;
 
+		//vector<ofMesh*> meshPointers;
+		vector<ofMesh> meshes;
+
 };
