@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxKinectForWindows2.h"
+#include "MyThread.h"
 
 class ofApp : public ofBaseApp{
 
@@ -22,8 +23,10 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
-		void exportMeshes();
+		void exit();
 		void displayPoC();
+
+		MyThread thread;
 
 		ofxKFW2::Device kinect;
 

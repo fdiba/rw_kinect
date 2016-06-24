@@ -8,6 +8,9 @@ ofImage image;
 //--------------------------------------------------------------
 void ofApp::setup(){
 
+	// start the thread
+	thread.startThread(true);    // blocking, non verbose
+
 	kinect.open();
 
 	kinect.initDepthSource();
@@ -29,7 +32,11 @@ void ofApp::setup(){
 	framesMax = 10;
 
 }
+void ofApp::exit() {
 
+	// stop the thread
+	thread.stopThread();
+}
 //--------------------------------------------------------------
 void ofApp::update(){
 	
@@ -44,11 +51,39 @@ void ofApp::update(){
 	if (kinect.isFrameNew() && recording) {
 
 		if(ofGetFrameNum() % 10 == 0){
-			std::cout << "meshes size : " << meshes.size() << endl;
+			std::cout << "r meshes size : " << meshes.size() << endl;
 			if (meshes.size()<framesMax) meshes.push_back(mesh);
-			else if (meshes.size() >= framesMax)recording = false;
+			else recording = false;
 		
 		}
+	}
+	else if (saving) {
+
+		// lock access to the resource
+		thread.lock();
+		
+		thread.t_meshes = meshes;
+		//thread.t_meshes.assign(meshes.begin(), meshes.begin()+ meshes.size());
+		
+		thread.exporting = saving;
+
+		//TODO DO IT ELSEWHERE
+		saving = false;
+		
+
+		//std::cout << "meshes size : " << meshes.size() << endl;
+
+		// done with the resource
+		thread.unlock();
+
+
+
+		/*std::cout << "meshes size : " << meshes.size() << endl;
+		exportMeshes();
+		saving = false;
+		meshes.clear();
+		std::cout << "meshes size : " << meshes.size() << endl;*/
+
 	}
 
 	/*if (kinect.isFrameNew()) {
@@ -72,23 +107,16 @@ void ofApp::draw(){
 	if (recording) {
 		ofSetColor(255, 0, 0);
 		myfont.drawString("recording", 10, 20);
-		displayPoC();
 	}
 	else if (saving) {
 
 		ofSetColor(255, 0, 0);
 		myfont.drawString("saving", 10, 20);
-		
-		std::cout << "meshes size : " << meshes.size() << endl;
-		exportMeshes();
-		saving = false;
-		meshes.clear();
-		std::cout << "meshes size : " << meshes.size() << endl;
 
 	}
-	else {
-		displayPoC();
-	}
+	
+	displayPoC();
+	
 	
 	//kinect.getDepthSource()->draw(0, 0, previewWidth, previewHeight);
 	//kinect.getColorSource()->draw(previewWidth, 0, previewWidth, previewHeight);
@@ -121,17 +149,6 @@ void ofApp::displayPoC() {
 void ofApp::drawJoints3D(){
 
 }
-void ofApp::exportMeshes() {
-
-	for (int i = 0; i < meshes.size(); i++) {
-
-		string str3 = "mesh-" + ofGetTimestampString() + ".ply";
-		ofMesh m = meshes[i];
-		m.save(str3);
-
-	}
-
-}
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
 
@@ -149,10 +166,7 @@ void ofApp::keyPressed(int key) {
 	else if (key == 'r') {
 
 		recording = !recording;
-
-		//meshes.push_back(mesh);
-
-		//std::cout << "meshPointers size : " << meshes.size() << endl;
+		if(recording)meshes.clear();
 
 	} else if (key == 'm') {
 
