@@ -29,7 +29,7 @@ void ofApp::setup(){
 
 	myfont.loadFont("arial.ttf", 12);
 
-	framesMax = 10;
+	framesMax = 3;
 
 }
 void ofApp::exit() {
@@ -60,21 +60,25 @@ void ofApp::update(){
 	else if (saving) {
 
 		// lock access to the resource
-		thread.lock();
+		//thread.lock();
 		
 		thread.t_meshes = meshes;
 		//thread.t_meshes.assign(meshes.begin(), meshes.begin()+ meshes.size());
+		thread.exporting = true;
+
+		saving = false;
+
 		
-		thread.exporting = saving;
 
 		//TODO DO IT ELSEWHERE
-		saving = false;
+		//saving = false;
 		
+		//thread.isSaving = &saving;
 
 		//std::cout << "meshes size : " << meshes.size() << endl;
 
 		// done with the resource
-		thread.unlock();
+		//thread.unlock();
 
 
 
@@ -103,16 +107,12 @@ void ofApp::draw(){
 	//ofSetColor(0);
 	//ofDrawRectangle(0, 0, previewWidth, previewHeight);
 
-
 	if (recording) {
 		ofSetColor(255, 0, 0);
 		myfont.drawString("recording", 10, 20);
-	}
-	else if (saving) {
-
+	} else if (thread.exporting) {
 		ofSetColor(255, 0, 0);
 		myfont.drawString("saving", 10, 20);
-
 	}
 	
 	displayPoC();

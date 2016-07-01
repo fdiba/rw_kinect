@@ -27,11 +27,14 @@ class MyThread : public ofThread {
 
 					std::cout << "exporting done " << endl; //TODO EDIT STATUS MAIN APPLICATION
 
+					//TO clear mesh
 					exporting = false;
 					
 
 				}
 
+				
+				
 				
 			}
 			/*if (saving) {
@@ -48,6 +51,7 @@ class MyThread : public ofThread {
 		}
 
 	}
+	
 	boolean exporting;
 	vector<ofMesh> t_meshes;
 	//ofImage image;
