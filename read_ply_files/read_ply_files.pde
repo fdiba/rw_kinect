@@ -4,21 +4,25 @@ import peasy.*;
 PeasyCam cam;
 
 String[] params;
-PVector[][] meshes;
+
+PShape[] shapes;
+
 String line3_start = "element vertex ";
 int[] pointers = {9, 217096};
 int coef = 100;
 
+float rotX = radians(180);
+
 void setup() {
-  
-  size(640, 480, OPENGL);
-  
+
+  size(640, 480, P3D);
+
   background(0);
-  
+
   cam = new PeasyCam(this, 100);
-  cam.setMinimumDistance(50);
+  cam.setMinimumDistance(0);
   cam.setMaximumDistance(500);
-  
+
   params = loadStrings("parameters.txt");
   File dir = new File(params[0]);
   String[] children = dir.list();
@@ -33,8 +37,6 @@ void processMFolder(String folder) {
 }
 void processPlyFiles(String path, String[] files) {
 
-  //println(files.length);
-
   for (int i=0; i<files.length; i++) {
 
     String ply_path = path+"/"+files[i];
@@ -44,44 +46,34 @@ void processPlyFiles(String path, String[] files) {
       String numberOfPoints = lines[2];
       numberOfPoints= numberOfPoints.substring(line3_start.length());
       println(numberOfPoints);
-      meshes = new PVector[files.length][parseInt(numberOfPoints)];
-      println(meshes.length);
+
+      shapes = new PShape[files.length];
     }
+
+    shapes[i] = createShape();
+    shapes[i].beginShape(POINTS);
+    shapes[i].stroke(255);
 
     for (int j=pointers[0]; j<=pointers[1]; j++) {
 
       String[] pos = split(lines[j], ' ');
       if (!pos[0].equals("-inf")) {
-        meshes[i][j-pointers[0]] = new PVector(parseFloat(pos[0])*coef, parseFloat(pos[1])*coef, parseFloat(pos[2])*coef);
+
+        shapes[i].vertex(parseFloat(pos[0])*coef, parseFloat(pos[1])*coef, parseFloat(pos[2])*coef);
       }
     }
+
+    shapes[i].endShape();
   }
 
   println("done");
 }
 void draw() {
-  
   background(0);
-  fill(255);
-  stroke(255);
   
-  if (meshes.length>0) {
-
-    for (PVector v : meshes[0]) {
-
-      if (v!=null) {
-        //println(v.x);
-        
-        pushMatrix();
-        translate(v.x, v.y, v.z);
-        point(0, 0);
-        //ellipse(0, 0, 1, 1);
-        
-        popMatrix();
-        
-      }
-    }
-  }
+  rotateX(rotX);
+  
+  if (shapes.length>0) shape(shapes[0], 0, 0);
 }
 
 void saveIMG() {
@@ -92,9 +84,8 @@ void saveIMG() {
 
 //------------------------- keyboard -------------------------//
 void keyPressed() {
-  
+
   if (key == 's') {
     saveIMG();
-  } 
-  
+  }
 }
