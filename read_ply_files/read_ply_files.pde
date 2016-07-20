@@ -10,6 +10,7 @@ PShape[] meshes;
 int shapeId;
 //need to match recording speed
 int speed;
+float depthThreshold;
 
 String line3_start = "element vertex ";
 int[] pointers = {9, 217096};
@@ -26,9 +27,10 @@ void setup() {
   background(0);
 
   speed = 10;
+  depthThreshold =.9;
 
   cam = new PeasyCam(this, 100);
-  cam.setMinimumDistance(0);
+  cam.setMinimumDistance(-100);
   cam.setMaximumDistance(500);
 
   params = loadStrings("parameters.txt");
@@ -67,7 +69,11 @@ void processPlyFiles(String path, String[] files) {
 
     for (int j=pointers[0]; j<=pointers[1]; j++) {
       String[] pos = split(lines[j], ' ');
-      if (!pos[0].equals("-inf")) meshes[i].vertex(parseFloat(pos[0])*coef, parseFloat(pos[1])*coef, parseFloat(pos[2])*coef);
+      
+      //add depth threshold and remove -inf 
+      if (!pos[0].equals("-inf") && parseFloat(pos[2])<depthThreshold){
+        meshes[i].vertex(parseFloat(pos[0])*coef, parseFloat(pos[1])*coef, parseFloat(pos[2])*coef);
+      }
     }
 
     meshes[i].endShape();
@@ -100,7 +106,7 @@ void keyPressed() {
 
   if (key == 's') {
     saveIMG();
-  } else if (key == 'p') {
+  } else if (key == ' ') {
     pause = !pause;
     println("pause:", pause);
   }
