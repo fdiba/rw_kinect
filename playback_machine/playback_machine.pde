@@ -65,8 +65,8 @@ void processPlyFiles(String path, String[] files) {
 
       //initiate vectors array
       vectors = new PVector[parseInt(numberOfPoints)];
-      for(int k=0; k<vectors.length; k++) {
-        vectors[k] = new PVector();
+      for (int k=0; k<vectors.length; k++) {
+        vectors[k] = new PVector(random(-800, 800), random(-800, 800), random(-800, 800));
       }
       //println(vectors.length);
 
@@ -96,25 +96,30 @@ void draw() {
 
   rotateX(rotX);
 
-  //if (frameCount%speed==0)editShapeId();
+  animateAndDisplayVectorsBasedOn(meshes[shapeId]);
+  
+}
+void animateAndDisplayVectorsBasedOn(PShape shape) {
 
-  //if (meshes.length>0) shape(meshes[shapeId], 0, 0);
-  
-  for(int i=0; i<meshes[0].getVertexCount(); i++){
-   
-    PVector v = meshes[0].getVertex(i);
-    
-    vectors[i] = v.copy();
-        
+  //---------- update
+  for (int i=0; i<shape.getVertexCount(); i++) {
+
+    PVector v = shape.getVertex(i);
+
+    PVector dist = PVector.sub(v, vectors[i]);
+    dist.mult(.3);
+
+    vectors[i].add(dist);
   }
-  
+
+  //------- display
   stroke(255);
+
   beginShape(POINTS);
-  for(int j=0; j<meshes[0].getVertexCount(); j++){
-    vertex(vectors[j].x, vectors[j].y, vectors[j].z); 
+  for (int j=0; j<shape.getVertexCount(); j++) {
+    vertex(vectors[j].x, vectors[j].y, vectors[j].z);
   }
   endShape();
-  
 }
 void editShapeId() {
   if (!pause)shapeId++;
@@ -122,18 +127,21 @@ void editShapeId() {
 }
 void saveIMG() {
   Date date = new Date();
-  String name = "data/img/ply_render-" + date.getTime() + ".jpg";
+  String name = "data/img/pbm-" + date.getTime() + ".jpg";
   save(name);
 }
 //------------------------- keyboard -------------------------//
 void mousePressed() {
-  if(meshes.length>0)println(meshes[0].getVertexCount());
+  //if (meshes.length>0)println(meshes[0].getVertexCount());
 }
 //------------------------- keyboard -------------------------//
 void keyPressed() {
 
   if (key == 's') {
     saveIMG();
+  } else if (key == 't') {
+    editShapeId();
+    println("shapeId:", shapeId);
   } else if (key == ' ') {
     pause = !pause;
     println("pause:", pause);
