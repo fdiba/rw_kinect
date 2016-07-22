@@ -20,19 +20,29 @@ float rotX = radians(180);
 
 boolean pause;
 
-PVector[] vectors;
+PVector[] locations;
+PVector[] velocities;
+PVector[] accelerations;
+
+float maxspeed; //TODO VARIABLE
+float maxforce; //TODO VARIABLE
 
 void setup() {
 
-  size(640, 480, P3D);
+  size(800, 600, P3D);
 
   background(0);
 
   speed = 10;
   depthThreshold =.9;
 
+
+  maxspeed = 6; //6
+  maxforce = 0.1;
+
+
   cam = new PeasyCam(this, 100);
-  cam.setMinimumDistance(-100);
+  cam.setMinimumDistance(0);
   cam.setMaximumDistance(500);
 
   params = loadStrings("parameters.txt");
@@ -64,11 +74,16 @@ void processPlyFiles(String path, String[] files) {
       numberOfPoints = numberOfPoints.substring(line3_start.length());
 
       //initiate vectors array
-      vectors = new PVector[parseInt(numberOfPoints)];
-      for (int k=0; k<vectors.length; k++) {
-        vectors[k] = new PVector(random(-800, 800), random(-800, 800), random(-800, 800));
+      locations = new PVector[parseInt(numberOfPoints)];
+      velocities = new PVector[parseInt(numberOfPoints)];
+      accelerations = new PVector[parseInt(numberOfPoints)];
+
+      for (int k=0; k<locations.length; k++) {
+        locations[k] = new PVector(random(-800, 800), random(-800, 800), random(-800, 800));
+        velocities[k] = new PVector(random(-10, 10), random(-10, 10), random(-10, 10));
+        accelerations[k] = new PVector();
       }
-      //println(vectors.length);
+      //println(locations.length);
 
       meshes = new PShape[files.length];
     }
@@ -97,19 +112,44 @@ void draw() {
   rotateX(rotX);
 
   animateAndDisplayVectorsBasedOn(meshes[shapeId]);
-  
 }
 void animateAndDisplayVectorsBasedOn(PShape shape) {
 
   //---------- update
   for (int i=0; i<shape.getVertexCount(); i++) {
 
-    PVector v = shape.getVertex(i);
+    PVector target = shape.getVertex(i);
 
-    PVector dist = PVector.sub(v, vectors[i]);
-    dist.mult(.3);
+    PVector desired = PVector.sub(target, locations[i]);
 
-    vectors[i].add(dist);
+    float d = desired.mag();
+
+    desired.normalize();
+
+    if (d<100) {
+
+      float m = map(d, 0, 100, 0, maxspeed);
+      desired.mult(m);
+      
+    } else {
+      desired.mult(maxspeed);
+    }
+
+    //desired.mult(.3);
+    //locations[i].add(desired);
+
+    PVector steer = PVector.sub(desired, velocities[i]);
+    steer.limit(maxforce);
+
+    //applyForce(steer);
+    accelerations[i].add(steer);
+
+
+    //update
+    velocities[i].add(accelerations[i]);
+    velocities[i].limit(maxspeed);
+    locations[i].add(velocities[i]);
+    accelerations[i].mult(0);
   }
 
   //------- display
@@ -117,7 +157,7 @@ void animateAndDisplayVectorsBasedOn(PShape shape) {
 
   beginShape(POINTS);
   for (int j=0; j<shape.getVertexCount(); j++) {
-    vertex(vectors[j].x, vectors[j].y, vectors[j].z);
+    vertex(locations[j].x, locations[j].y, locations[j].z);
   }
   endShape();
 }
