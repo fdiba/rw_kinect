@@ -24,6 +24,8 @@ PVector[] locations;
 PVector[] velocities;
 PVector[] accelerations;
 
+PVector center;
+
 float maxspeed; //TODO VARIABLE
 float maxforce; //TODO VARIABLE
 
@@ -39,6 +41,8 @@ void setup() {
 
   maxspeed = 6; //6
   maxforce = 0.1;
+
+  center = new PVector();
 
 
   cam = new PeasyCam(this, 100);
@@ -112,45 +116,70 @@ void draw() {
   rotateX(rotX);
 
   animateAndDisplayVectorsBasedOn(meshes[shapeId]);
+  
+  displayCenter();
+  
+}
+void displayCenter(){
+ 
+  pushMatrix();
+  translate(center.x, center.y, center.z);
+  noStroke();
+  fill(255, 0, 0);
+  ellipse(0, 0, 10, 10);
+  
+  popMatrix();
+  
 }
 void animateAndDisplayVectorsBasedOn(PShape shape) {
 
-  //---------- update
-  for (int i=0; i<shape.getVertexCount(); i++) {
 
-    PVector target = shape.getVertex(i);
 
-    PVector desired = PVector.sub(target, locations[i]);
+  if (!pause) {
 
-    float d = desired.mag();
+    center = new PVector();
 
-    desired.normalize();
+    //---------- update
+    for (int i=0; i<shape.getVertexCount(); i++) {
 
-    if (d<100) {
+      PVector target = shape.getVertex(i);
 
-      float m = map(d, 0, 100, 0, maxspeed);
-      desired.mult(m);
-      
-    } else {
-      desired.mult(maxspeed);
+      PVector desired = PVector.sub(target, locations[i]);
+
+      float d = desired.mag();
+
+      desired.normalize();
+
+      if (d<100) {
+
+        float m = map(d, 0, 100, 0, maxspeed);
+        desired.mult(m);
+      } else {
+        desired.mult(maxspeed);
+      }
+
+      //desired.mult(.3);
+      //locations[i].add(desired);
+
+      PVector steer = PVector.sub(desired, velocities[i]);
+      steer.limit(maxforce);
+
+      //applyForce(steer);
+      accelerations[i].add(steer);
+
+
+      //update
+      velocities[i].add(accelerations[i]);
+      velocities[i].limit(maxspeed);
+      locations[i].add(velocities[i]);
+      accelerations[i].mult(0);
+
+      center.add(locations[i]);
     }
-
-    //desired.mult(.3);
-    //locations[i].add(desired);
-
-    PVector steer = PVector.sub(desired, velocities[i]);
-    steer.limit(maxforce);
-
-    //applyForce(steer);
-    accelerations[i].add(steer);
-
-
-    //update
-    velocities[i].add(accelerations[i]);
-    velocities[i].limit(maxspeed);
-    locations[i].add(velocities[i]);
-    accelerations[i].mult(0);
   }
+
+  //------- camera
+  center.div(shape.getVertexCount());
 
   //------- display
   stroke(255);
