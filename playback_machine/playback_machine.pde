@@ -24,10 +24,14 @@ PVector[] locations;
 PVector[] velocities;
 PVector[] accelerations;
 
-PVector center;
+PVector avg;
+PVector cameraCenter;
+float cameraRate;
 
 float maxspeed; //TODO VARIABLE
 float maxforce; //TODO VARIABLE
+
+
 
 void setup() {
 
@@ -40,10 +44,11 @@ void setup() {
 
 
   maxspeed = 6; //6
-  maxforce = 0.1;
+  maxforce = .9; //.1
 
-  center = new PVector();
-
+  avg = new PVector();
+  cameraCenter = new PVector();
+  cameraRate = .1;
 
   cam = new PeasyCam(this, 100);
   cam.setMinimumDistance(0);
@@ -114,16 +119,22 @@ void draw() {
   background(0);
 
   rotateX(rotX);
+  
+  cameraCenter.mult(1 - cameraRate);
+  avg.mult(cameraRate);
+  cameraCenter.add(avg);
+  
+  translate(-cameraCenter.x, -cameraCenter.y, -cameraCenter.z);
 
   animateAndDisplayVectorsBasedOn(meshes[shapeId]);
   
-  displayCenter();
+  //displayCenter();
   
 }
 void displayCenter(){
  
   pushMatrix();
-  translate(center.x, center.y, center.z);
+  translate(avg.x, avg.y, avg.z);
   noStroke();
   fill(255, 0, 0);
   ellipse(0, 0, 10, 10);
@@ -137,7 +148,7 @@ void animateAndDisplayVectorsBasedOn(PShape shape) {
 
   if (!pause) {
 
-    center = new PVector();
+    avg = new PVector();
 
     //---------- update
     for (int i=0; i<shape.getVertexCount(); i++) {
@@ -174,12 +185,12 @@ void animateAndDisplayVectorsBasedOn(PShape shape) {
       locations[i].add(velocities[i]);
       accelerations[i].mult(0);
 
-      center.add(locations[i]);
+      avg.add(locations[i]);
     }
   }
 
   //------- camera
-  center.div(shape.getVertexCount());
+  avg.div(shape.getVertexCount());
 
   //------- display
   stroke(255);
